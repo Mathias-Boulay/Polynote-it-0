@@ -34,7 +34,7 @@ export default Node.create({
 
   group: 'drag',
 
-  content: 'block+',
+  content: 'block*',
 
   atom: true,
 
