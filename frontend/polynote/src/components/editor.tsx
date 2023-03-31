@@ -15,6 +15,7 @@ import { ExtendedTable } from './extensions/tables';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
+import DatabaseNode from './extensions/DatabaseNode';
 
 // Force every component to be wrapped inside drag group
 const CustomDocument = Document.extend({
@@ -36,6 +37,7 @@ export function Editor() {
       ColumnExtension.configure({
         columnBlock: false,
       }),
+      DatabaseNode,
       ExtendedColumn,
       CustomStrike,
       ExtendedHeading,
@@ -52,8 +54,14 @@ export function Editor() {
     content: `
     <drag-block><p>Hello World!</p></drag-block>
     <drag-block><p>Hello World!</p></drag-block>
-    <p>toto</p>`,
+    <p>toto</p>
+    <drag-block><database-block></database-block></drag-block>`,
   });
 
-  return <EditorContent editor={editor} />;
+  return (
+    <div>
+      <EditorContent editor={editor} />
+      {/* <DatabaseBlock /> */}
+    </div>
+  );
 }
