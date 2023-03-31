@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  nginx:
+    depends_on:
+      - db
+      - nest
+    image: nginx-polynote
+    restart: always
+    build:
+      context: ./
+      dockerfile: dockerfile-nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    networks:
+      - db-network
+
+  
+  nest:
+    depends_on:
+      - db
+    image: nest-backend
+    restart: always
+    build:
+      context: ./
+      dockerfile: dockerfile-nest
+    ports:
+      - '3333:3333'
+    expose:
+      - '3333'
+    networks:
+      - db-network
+
+  db:
+    image: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    expose:
+      - '27017'
+    volumes:
+      - db-data:/data/db
+    
+    networks:
+      - db-network
+  
+
+
+networks:
+  db-network:
+
+volumes:
+  db-data: 
