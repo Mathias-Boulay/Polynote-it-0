@@ -2,7 +2,6 @@ import { mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer, textblockTypeInputRule } from '@tiptap/react';
 
 import { DatabaseBlock } from '../blocks/database/database';
-import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 
 export default Node.create({
   name: 'databaseBlock',
@@ -10,6 +9,30 @@ export default Node.create({
   group: 'block',
 
   content: 'inline*',
+
+  addAttributes() {
+    return {
+      columns: {
+        default: [],
+        parseHTML: (element) => element.getAttribute('data-columns'),
+        renderHTML: (attributes) => {
+          return {
+            'data-columns': JSON.stringify(attributes.columns),
+          };
+        },
+      },
+
+      rows: {
+        default: [],
+        parseHTML: (element) => element.getAttribute('data-rows'),
+        renderHTML: (attributes) => {
+          return {
+            'data-rows': JSON.stringify(attributes.rows),
+          };
+        },
+      },
+    };
+  },
 
   parseHTML() {
     return [
@@ -33,7 +56,6 @@ export default Node.create({
   },
 
   addNodeView() {
-    // FIXME For some reason, I can't make the NodeViewWrapper works as I want.
     return ReactNodeViewRenderer(DatabaseBlock);
   },
 });

@@ -1,9 +1,23 @@
 import { Button, Checkbox, Form, Input } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { CreateUserBody } from '../models/create_user';
 
-export function SignupForm() {
+export interface SignUpOptions {
+  onFinish: (data: CreateUserBody) => void;
+}
+
+export const SignupForm: React.FC<SignUpOptions> = (props) => {
+  const [cguAccepted, setCguAccepted] = useState<boolean>(false);
+  const [ageAccepted, setAgeAccepted] = useState<boolean>(false);
+
   const onFinish = (form: any) => {
     console.log(form);
+    props.onFinish({
+      username: form.nickname,
+      email: form.email,
+      password: form.password,
+    });
   };
 
   return (
@@ -49,14 +63,23 @@ export function SignupForm() {
       </Form.Item>
 
       <Form.Item name='tos' valuePropName='checked' wrapperCol={{ offset: 8, span: 16 }}>
-        <Checkbox>Remember me</Checkbox>
+        <Checkbox onChange={(e) => setCguAccepted(e.target.checked)}>
+          I accept the{' '}
+          <Link to={'/tos'} target='_blank'>
+            Terms Of Service
+          </Link>
+        </Checkbox>
+      </Form.Item>
+
+      <Form.Item name='age_restriction' valuePropName='checked' wrapperCol={{ offset: 8, span: 16 }}>
+        <Checkbox onChange={(e) => setAgeAccepted(e.target.checked)}>I am 13+ years old</Checkbox>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type='primary' htmlType='submit'>
+        <Button type='primary' htmlType='submit' disabled={!(cguAccepted && ageAccepted)}>
           Submit
         </Button>
       </Form.Item>
     </Form>
   );
-}
+};

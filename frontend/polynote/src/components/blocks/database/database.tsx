@@ -5,6 +5,7 @@ import { EditableCell } from './editableCell';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import { EditableHeader } from './editableHeader';
+import { NodeViewWrapper } from '@tiptap/react';
 export type TableDataType = 'TEXT' | 'CHECKBOX' | 'DATE' | 'NUMBER';
 
 export interface ExtendedColumnType {
@@ -20,8 +21,9 @@ export interface DataRow {
   [dataKey: string]: string;
 }
 
-export function DatabaseBlock() {
-  /* The type any is used since we don't know the user input */
+// FIXME how to you declare the props passed by the NodeViewRenderer ?!
+export const DatabaseBlock: React.FC = (props: any) => {
+  console.log(props);
 
   // Describe how columns are rendered
   const [columns, setColumns] = useState<ExtendedColumnType[]>([]);
@@ -42,7 +44,9 @@ export function DatabaseBlock() {
   function deleteColumn(key: string) {
     const index = findColumnIndex(key);
     setColumns((previousColumns) => {
-      return [...previousColumns.slice(0, index), ...previousColumns.slice(index + 1)];
+      const newColumns = [...previousColumns.slice(0, index), ...previousColumns.slice(index + 1)];
+      props.updateAttributes({ columns: newColumns });
+      return newColumns;
     });
   }
 
@@ -60,21 +64,25 @@ export function DatabaseBlock() {
   function deleteRow(key: string) {
     const index = findRowIndex(key);
     setData((previousData) => {
-      return [...previousData.slice(0, index), ...previousData.slice(index + 1)];
+      const newRows = [...previousData.slice(0, index), ...previousData.slice(index + 1)];
+      props.updateAttributes({ rows: newRows });
+      return newRows;
     });
   }
 
   /** Add a row with no data */
   function addRow(insertKey: string) {
-    const index = findRowIndex(insertKey);
+    const index = data.length > 0 ? findRowIndex(insertKey) : 0;
     setData((previousData) => {
-      return [
+      const newRows = [
         ...previousData.slice(0, index + 1),
         {
           key: Date.now().toString(),
         },
         ...previousData.slice(index + 1),
       ];
+      props.updateAttributes({ rows: newRows });
+      return newRows;
     });
   }
 
@@ -82,7 +90,7 @@ export function DatabaseBlock() {
   function saveCellData(data: any, rowKey: string, columnKey: string) {
     setData((previousData) => {
       const rowIndex = findRowIndex(rowKey);
-      return [
+      const newRows = [
         ...previousData.slice(0, rowIndex),
         {
           ...previousData[rowIndex],
@@ -90,6 +98,8 @@ export function DatabaseBlock() {
         },
         ...previousData.slice(rowIndex + 1),
       ];
+      props.updateAttributes({ rows: newRows });
+      return newRows;
     });
   }
 
@@ -98,13 +108,15 @@ export function DatabaseBlock() {
     const index = findColumnIndex(key);
     // Nuke the data in the column
     setData((previousData) => {
-      return previousData.map((value) => {
+      const newRows = previousData.map((value) => {
         return { ...value, [columns[index].name]: '' };
       });
+      props.updateAttributes({ rows: newRows });
+      return newRows;
     });
 
     setColumns((previousColumns) => {
-      return [
+      const newColumns = [
         ...previousColumns.slice(0, index),
         {
           ...previousColumns[index],
@@ -112,6 +124,8 @@ export function DatabaseBlock() {
         },
         ...previousColumns.slice(index + 1),
       ];
+      props.updateAttributes({ columns: newColumns });
+      return newColumns;
     });
   }
 
@@ -124,7 +138,7 @@ export function DatabaseBlock() {
     const columnKey = Date.now().toString();
 
     setColumns((previousColumns) => {
-      return [
+      const newColumns = [
         ...previousColumns.slice(0, index + 1),
         {
           dataType: dataType,
@@ -133,28 +147,42 @@ export function DatabaseBlock() {
         },
         ...previousColumns.slice(index + 1),
       ];
+      console.log(newColumns);
+      props.updateAttributes({ columns: newColumns });
+      return newColumns;
     });
 
     // Initialize empty data for the cell
     setData((previousData) => {
-      return previousData.map((value) => {
+      const newRows = previousData.map((value) => {
         return { ...value, [name]: '' };
       });
+      props.updateAttributes({ rows: newRows });
+      return newRows;
     });
   }
 
-  // Load some dummy data
+  // If the database does not have any existing data, fill some dummy data
   useEffect(() => {
-    setColumns([]);
-    setData([]);
-    addColumn('beautifulColumnKey', 'TESTLESGENS', 'TEXT');
-    setData([
-      {
-        key: '1',
-        TESTLESGENS: 'Hello there',
-        DEFAULT: 'THIS IS DEFAULT TEXT',
-      },
-    ]);
+    console.log({ columns: props.node.attrs.columns, rows: props.node.attrs.rows });
+    if (props.node.attrs.columns.length == 0 && props.node.attrs.rows.length == 0) {
+      setColumns([]);
+      setData([]);
+      addColumn('beautifulColumnKey', 'DEFAULT', 'TEXT');
+    } else {
+      setColumns(props.node.attrs.columns);
+      if (props.node.attrs.rows.length == 0) {
+        setData([
+          {
+            key: '1',
+            TESTLESGENS: 'Hello there',
+            DEFAULT: 'THIS IS DEFAULT TEXT',
+          },
+        ]);
+      } else {
+        setData(props.node.attrs.rows);
+      }
+    }
   }, []);
 
   // Displayed headers
@@ -197,39 +225,14 @@ export function DatabaseBlock() {
   });
 
   return (
-    <table>
-      <thead>
-        <tr>{headers}</tr>
-      </thead>
+    <NodeViewWrapper className='react-component'>
+      <table>
+        <thead>
+          <tr>{headers}</tr>
+        </thead>
 
-      <tbody>{rows}</tbody>
-    </table>
-    // <Table
-    //   components={{
-    //     body: {
-    //       cell: EditableCell,
-    //       row: EditableRow,
-    //     },
-    //   }}
-    //   bordered
-    //   dataSource={data}
-    //   columns={columns}
-    //   rowClassName='editable-row'
-    //   pagination={{}}
-    // />
+        <tbody>{rows}</tbody>
+      </table>
+    </NodeViewWrapper>
   );
-  // return (
-  //   <div>
-  //     <button
-  //       onClick={() => {
-  //         addColumn(findColumnIndex(columns[0].key), `DEFAULT ${Date.now()}`, 'TEXT');
-  //       }}
-  //     >
-  //       fdp
-  //     </button>
-  //     {columns.map((col) => {
-  //       return <p>{col.dataIndex}</p>;
-  //     })}
-  //   </div>
-  // );
-}
+};

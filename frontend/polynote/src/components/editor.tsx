@@ -16,13 +16,19 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import DatabaseNode from './extensions/DatabaseNode';
+import { Transaction } from '@tiptap/pm/state';
 
 // Force every component to be wrapped inside drag group
 const CustomDocument = Document.extend({
   content: 'drag+ | block+',
 });
 
-export function Editor() {
+export interface EditorOptions {
+  documentData: any; // Technically, json stuff
+  onChange(newDocumentData: any): void;
+}
+
+export const Editor: React.FC<EditorOptions> = (props) => {
   const editor = useEditor({
     extensions: [
       CustomDocument,
@@ -51,9 +57,15 @@ export function Editor() {
       DragBlock,
     ],
 
-    content: `
-    <drag-block><p>Hello World!</p></drag-block>
-    <drag-block><p>Hello World!</p></drag-block>
+    onUpdate: (newProps) => {
+      props.onChange(newProps.editor.getJSON());
+    },
+
+    content: props.documentData
+      ? props.documentData
+      : `
+    <drag-block><p>Hello There</p></drag-block>
+    <drag-block><p>You can write and drag these blocks</p></drag-block>
     <p>toto</p>
     <drag-block><database-block></database-block></drag-block>`,
   });
@@ -64,4 +76,4 @@ export function Editor() {
       {/* <DatabaseBlock /> */}
     </div>
   );
-}
+};

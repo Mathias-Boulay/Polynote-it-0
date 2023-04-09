@@ -1,13 +1,19 @@
 import { Button, Checkbox, Form, Input } from 'antd';
 import React from 'react';
 import { useNavigate } from 'react-router';
+import { LoginBody } from '../models/login_user';
 
-export function LoginForm() {
-  const navigate = useNavigate();
+export interface LoginFormOptions {
+  onFinish: (data: LoginBody) => void;
+}
 
+export const LoginForm: React.FC<LoginFormOptions> = (props) => {
   const onFinish = async (values: any) => {
     console.log(values);
-    navigate('/editor');
+    props.onFinish({
+      email: values['email'],
+      password: values['password'],
+    });
   };
 
   return (
@@ -36,10 +42,6 @@ export function LoginForm() {
         <Input.Password />
       </Form.Item>
 
-      <Form.Item name='remember' valuePropName='checked' wrapperCol={{ offset: 8, span: 16 }}>
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
-
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type='primary' htmlType='submit'>
           Submit
@@ -47,4 +49,4 @@ export function LoginForm() {
       </Form.Item>
     </Form>
   );
-}
+};
