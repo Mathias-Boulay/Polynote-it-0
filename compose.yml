@@ -13,7 +13,7 @@ services:
       - '80:80'
       - '443:443'
     networks:
-      - db-network
+      - api-network
 
   
   nest:
@@ -30,6 +30,7 @@ services:
       - '3333'
     networks:
       - db-network
+      - api-network
 
   db:
     image: mongo
@@ -48,6 +49,7 @@ services:
 
 
 networks:
+  api-network:
   db-network:
 
 volumes:
