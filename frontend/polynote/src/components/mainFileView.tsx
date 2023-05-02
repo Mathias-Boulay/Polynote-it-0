@@ -47,7 +47,7 @@ export const MainFileView: React.FC<MainFileViewOptions> = (props) => {
     if (node.children && node.children.length > 0) {
       return (
         <List.Item>
-          <Paragraph onClick={() => props.onFolderSelected(handleFolderSelected(node.key))}>
+          <Paragraph onClick={() => props.onFolderSelected(handleFolderSelected(node.key.toString()))}>
             Folder: {node.title as string} - Size: {node.children.length} files
           </Paragraph>
         </List.Item>
