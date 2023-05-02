@@ -5,7 +5,7 @@ import { Document } from '../models/document';
 import { DocumentMetadata } from '../models/document_metadata';
 import { JwtClaims } from '../models/jwt_claims';
 
-const BACKEND_ROOT_URL = 'http://localhost:3333';
+const BACKEND_ROOT_URL = `https://${window.location.host}/api`;
 
 /** Sign up the user */
 export async function signUp(data: CreateUserBody): Promise<boolean> {
