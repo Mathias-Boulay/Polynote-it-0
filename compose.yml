@@ -28,6 +28,13 @@ services:
       - '3333:3333'
     expose:
       - '3333'
+    environment:
+      - MAIL_SENDER=${MAIL_SENDER}
+      - MAIL_VERIFICATION_LINK_ROOT=${MAIL_VERIFICATION_LINK_ROOT}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MONGO_HOST=${MONGO_HOST}
     networks:
       - db-network
       - api-network
