@@ -88,7 +88,12 @@ export async function getDocument(documentId: string): Promise<Document> {
 
   // Do an additional decoding step, since it is encoded into a string
   const userDocument: Document = await result.json();
-  userDocument.data = JSON.parse(userDocument.data);
+  try {
+    userDocument.data = JSON.parse(userDocument.data);
+  } catch (error) {
+    userDocument.data = undefined;
+  }
+
   return userDocument;
 }
 
